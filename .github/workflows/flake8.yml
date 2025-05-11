@@ -1,0 +1,53 @@
+name: Flake8 Lint
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Flake8
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 flake8-django flake8-bugbear flake8-import-order
+        # Consider adding other flake8 plugins if you use them, e.g., flake8-docstrings
+        # If you have a requirements-dev.txt or similar, you could install it:
+        # pip install -r foodgram-st/backend/requirements-dev.txt
+
+    - name: Run Flake8
+      working-directory: ./backend
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings.
+        # The GitHub editor is 127 chars wide, but common practice is 88 or 119 for Django.
+        # --max-line-length=88 is a common default (used by Black).
+        # --max-line-length=119 is Django's preferred line length.
+        # Choose one or adjust as per your team's preference.
+        flake8 . --count --exit-zero --max-line-length=119 --statistics --ignore=E501,W503,F401,F403,F405
+        # Common ignores:
+        # E501: line too long (if you want to be flexible for now)
+        # W503: line break before binary operator (often W504 is preferred: line break after binary operator)
+        # F401: module imported but unused (can be noisy during development)
+        # F403: 'from module import *' used; unable to detect undefined names
+        # F405: name may be undefined, or defined from star imports: module
+        # You can customize the --ignore list based on what you find acceptable.
+        #
+        # Example with stricter line length and fewer ignores:
+        # flake8 . --count --exit-zero --max-line-length=88 --statistics --ignore=W503 

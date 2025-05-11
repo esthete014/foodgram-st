@@ -1,0 +1,10 @@
+django
+djangorestframework
+djoser
+django-filter
+psycopg2-binary
+gunicorn
+python-dotenv
+Pillow
+sorl-thumbnail
+django-debug-toolbar 
